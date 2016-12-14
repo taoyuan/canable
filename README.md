@@ -25,32 +25,12 @@ canable.allow(User, 'view', Product);
 const user = new User();
 const product = new Product();
 
-canable.can(user, 'view', product);
+canable.can(user, 'view', product).then(console.log);
 //=> true
 
-canable.can(user, 'edit', product);
+canable.can(user, 'edit', product).then(console.log);
 //=> false
 ```
-
-## API
-
-### canable(input, [options])
-
-#### input
-
-Type: `string`
-
-Lorem ipsum.
-
-#### options
-
-##### foo
-
-Type: `boolean`<br>
-Default: `false`
-
-Lorem ipsum.
-
 
 ## License
 
