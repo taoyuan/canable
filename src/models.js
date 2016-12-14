@@ -42,7 +42,7 @@ module.exports = function (options) {
  */
 function createModel(ds, filename) {
 	const def = require(`./models/${filename}.json`);
-	return ds.createModel(def.name, def.properties, getSettings(def));
+	return ds.createModel(def.name, def.properties, _.omit(def, ['name', 'properties']));
 }
 
 function extendModel(Model, filename) {
@@ -50,16 +50,4 @@ function extendModel(Model, filename) {
 	if (_.isFunction(extend)) {
 		extend(Model);
 	}
-}
-
-function getSettings(def) {
-	const settings = {};
-	for (let s in def) {
-		if (s === 'name' || s === 'properties') {
-			continue;
-		} else {
-			settings[s] = def[s];
-		}
-	}
-	return settings;
 }

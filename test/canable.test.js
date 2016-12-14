@@ -1,16 +1,10 @@
 'use strict';
 
-/* global describe,it */
+/* global describe,it,beforeEach,afterEach */
 const assert = require('chai').assert;
 const Canable = require('..');
 
 const s = require('./support');
-
-class Product {
-	save(cb) {
-		return cb && cb();
-	}
-}
 
 describe('canable', () => {
 	let canable;

@@ -1,14 +1,9 @@
 'use strict';
 
-/* global describe,it */
+/* global describe,it,beforeEach,afterEach */
 const assert = require('chai').assert;
 const Permissions = require('../src/permissions');
 const s = require('./support');
-
-class Product {
-	save() {
-	}
-}
 
 function itPermissions(dirty) {
 	let permissions;

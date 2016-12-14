@@ -24,7 +24,6 @@ exports.teardown = function () {
 	return cleanup(ds);
 };
 
-
 class Product {
 	constructor() {
 		this.id = nextId();

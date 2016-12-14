@@ -12,11 +12,12 @@ class Permissions {
 		opts = opts || {};
 		this._models = models;
 
-		if (opts.dirty === false) {
-		} else if (opts.dirty) {
-			this._property = _.isString(opts.dirty) ? opts.dirty : DEFAULT_DIRTY_PROP;
-		} else {
-			this._property = DEFAULT_DIRTY_PROP;
+		if (opts.dirty !== false) {
+			if (opts.dirty) {
+				this._property = _.isString(opts.dirty) ? opts.dirty : DEFAULT_DIRTY_PROP;
+			} else {
+				this._property = DEFAULT_DIRTY_PROP;
+			}
 		}
 	}
 
@@ -38,7 +39,8 @@ class Permissions {
 		return PromiseA.map(entities, entity => {
 			if (!entity) return;
 			if (!prop || _.isString(entity)) {
-				let entityType = entity, entityId = '';
+				let entityType = entity;
+				let entityId = '';
 				if (!_.isString(entity)) {
 					if (!(_.isObject(entity) && entity.id && entity.constructor.modelName)) {
 						throw new Error(util.format('Invalid entity (should be loopback dao object): %j', entity));
@@ -82,7 +84,8 @@ class Permissions {
 		return PromiseA.map(entities, entity => {
 			if (!entity) return;
 			if (!prop || _.isString(entity)) {
-				let entityType = entity, entityId = '';
+				let entityType = entity;
+				let entityId = '';
 				if (!_.isString(entity)) {
 					if (!(_.isObject(entity) && entity.id && entity.constructor.modelName)) {
 						throw new Error(util.format('Invalid entity: %j', entity));
@@ -128,7 +131,8 @@ class Permissions {
 		const prop = this._property;
 
 		if (!prop || _.isString(entity)) {
-			let entityType = entity, entityId = '';
+			let entityType = entity;
+			let entityId = '';
 			if (!_.isString(entity)) {
 				if (!(_.isObject(entity) && entity.id && entity.constructor.modelName)) {
 					throw new Error(util.format('Invalid entity: %j', entity));
@@ -158,7 +162,6 @@ class Permissions {
 				return !actions.length;
 			}));
 		}
-
 	}
 }
 

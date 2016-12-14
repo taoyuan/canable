@@ -10,5 +10,4 @@ describe('models', () => {
 		assert.ok(models.CanPermission);
 		return models.CanPermission.create().then(p => assert.ok(p));
 	});
-
 });
