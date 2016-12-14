@@ -1,0 +1,53 @@
+{
+  "name": "canable",
+  "version": "0.0.0",
+  "description": "An access control library for node.js",
+  "license": "MIT",
+  "repository": "taoyuan/canable",
+  "author": {
+    "name": "Yuan Tao",
+    "email": "towyuan@outlook.com",
+    "url": "gihub.com/canable"
+  },
+  "engines": {
+    "node": ">=6"
+  },
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint .",
+    "test": "npm run lint && nyc ./node_modules/.bin/mocha test/**/*.test.js"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    ""
+  ],
+  "dependencies": {
+    "arrify": "^1.0.1",
+    "bluebird": "^3.4.6",
+    "joi": "^10.0.5",
+    "lodash": "^4.17.2"
+  },
+  "optionalDependencies": {
+    "loopback-datasource-juggler": "^2.53.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
+    "coveralls": "^2.11.15",
+    "eslint": "^3.12.0",
+    "eslint-plugin-mocha": "^4.7.0",
+    "mocha": "^3.2.0",
+    "nyc": "^10.0.0",
+    "xo": "^0.17.1"
+  },
+  "xo": {
+    "esnext": true
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text"
+    ]
+  }
+}
