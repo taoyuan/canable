@@ -4,7 +4,7 @@ const _ = require('lodash');
 const DataSource = require('loopback-datasource-juggler').DataSource;
 
 const MODELS = {
-	CanPermission: 'can-permission'
+	CanEntity: 'can-entity'
 };
 
 /**
@@ -28,7 +28,7 @@ module.exports = function (options) {
 
 	const models = {};
 	// define models
-	models.CanPermission = createModel(dataSource, MODELS.CanPermission);
+	models.CanEntity = createModel(dataSource, MODELS.CanEntity);
 	// extend models
 	_.forEach(models, Model => extendModel(dataSource, MODELS[Model.modelName]));
 	return models;

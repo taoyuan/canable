@@ -1,0 +1,35 @@
+'use strict';
+
+const _ = require('lodash');
+const PromiseA = require('bluebird');
+const securers = require('./securers');
+
+module.exports = function (Model, opts) {
+	const connector = Model.getDataSource().connector;
+	const securer = securers.getSecurer(connector.name);
+	if (!securer) {
+		throw new Error('Unsupported connector: ' + connector.name);
+	}
+	if (Model._canableSecured) {
+		return;
+	}
+	Model._canableSecured = true;
+
+	opts = opts || {};
+	if (_.isFunction(opts)) {
+		opts = {getSubjects: opts};
+	}
+	opts = _.defaults(opts, {
+		getSubjects: _.noop
+	});
+
+	const secure = securer(Model, opts);
+
+	connector.observe('before execute', (ctx, next) => {
+		if (secure.length > 1) {
+			secure(ctx, next);
+		} else {
+			PromiseA.resolve(secure(ctx)).nodeify(next);
+		}
+	});
+};

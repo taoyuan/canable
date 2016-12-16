@@ -5,7 +5,7 @@ const Entity = joi.object({
 }).unknown();
 exports.Entity = Entity;
 
-const Entities = joi.alternatives().try(Entity, joi.array().items(Entity));
+const Entities = joi.alternatives().try(Entity, joi.string(), joi.array().items(Entity, joi.string()));
 exports.Entities = Entities;
 
 const Subject = joi.string();

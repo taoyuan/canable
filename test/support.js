@@ -2,14 +2,23 @@
 
 require('chai').use(require('chai-as-promised'));
 const _ = require('lodash');
+const path = require('path');
+const needs = require('needs');
 const PromiseA = require('bluebird');
+const pkg = require('../package.json');
+
 const DataSource = require('loopback-datasource-juggler').DataSource;
+const ds = exports.ds = new DataSource('mongodb', {database: pkg.name});
+require('./mocks/models/store')(ds);
+require('./mocks/models/product')(ds);
 
-let gid = 1;
-const ds = exports.ds = new DataSource('memory');
-
-function nextId() {
-	return gid++;
+function loadMockModelsFixtures(ds) {
+	const datas = needs(path.join(__dirname, './fixtures/models'));
+	return PromiseA.resolve(_.map(datas, (data, model) => {
+		if (ds.models[model]) {
+			return ds.models[model].create(data);
+		}
+	}));
 }
 
 function cleanup(ds) {
@@ -17,19 +26,11 @@ function cleanup(ds) {
 }
 
 exports.setup = function () {
-	return cleanup(ds);
+	return cleanup(ds).then(() => loadMockModelsFixtures(ds));
 };
 
 exports.teardown = function () {
 	return cleanup(ds);
 };
 
-class Product {
-	constructor() {
-		this.id = nextId();
-	}
-}
-Product.modelName = 'Product';
-
-exports.Product = Product;
-
+exports.Product = ds.models.Product;

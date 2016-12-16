@@ -1,8 +1,8 @@
 {
-  "name": "CanPermission",
+  "name": "CanEntity",
   "properties": {
 	"entityType": "string",
 	"entityId": "string",
-	"actions": "object"
+	"permissions": ["object"]
   }
 }
