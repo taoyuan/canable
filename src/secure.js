@@ -17,10 +17,10 @@ module.exports = function (Model, opts) {
 
 	opts = opts || {};
 	if (_.isFunction(opts)) {
-		opts = {getSubjects: opts};
+		opts = {getCurrentSubjects: opts};
 	}
 	opts = _.defaults(opts, {
-		getSubjects: _.noop
+		getCurrentSubjects: _.noop
 	});
 
 	const secure = securer(Model, opts);

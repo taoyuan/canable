@@ -10,14 +10,24 @@ const DEFAULT_PERMISSIONS_PROPERTY = '_permissions';
 
 class Canable {
 
+	/**
+	 * Constructor for Canable
+	 *
+	 * @param {Object} opts
+	 * @param {Boolean} [opts.dirty] is dirty mode. Default is true.
+	 * @param {String} [opts.property] property name for dirty mode. Default is "_permission".
+	 * @param {Function} [opts.findCorrelatedSubjects] find correlated roles for the subject (user or role).
+	 * @param {Function} [opts.getCurrentSubjects] get current user and roles correlated.
+	 *
+	 */
 	constructor(opts) {
 		this.opts = _.defaults(opts, {
 			property: DEFAULT_PERMISSIONS_PROPERTY
 		});
+		opts.dirty = opts.dirty !== false;
+		opts.property = opts.property || DEFAULT_PERMISSIONS_PROPERTY;
 
 		this.findCorrelatedSubjectsFn = opts.findCorrelatedSubjects || _.noop;
-		this.dirty = opts.dirty !== false;
-		this.property = opts.property || DEFAULT_PERMISSIONS_PROPERTY;
 		this.models = require('./models')(opts);
 	}
 
@@ -30,7 +40,7 @@ class Canable {
 		joi.assert(entities, schemas.Entities);
 		joi.assert(actions, schemas.Actions);
 
-		const isArray = Array.isArray(entities);
+		const multiple = Array.isArray(entities);
 		subjects = _.uniq(arrify(subjects));
 		entities = _.uniq(arrify(entities));
 		actions = _.uniq(arrify(actions));
@@ -42,7 +52,7 @@ class Canable {
 		}
 
 		const {CanEntity} = this.models;
-		const {dirty, property} = this;
+		const {dirty, property} = this.opts;
 
 		return PromiseA.map(entities, entity => {
 			if (!entity) return;
@@ -61,7 +71,7 @@ class Canable {
 				return CanEntity.findOrCreate({where: data}, data).then(([inst]) => allow(inst, 'permissions'));
 			}
 			return allow(entity, property);
-		}).then(items => isArray ? items : items[0]);
+		}).then(items => multiple ? items : items[0]);
 
 		function allow(target, key) {
 			const permissions = target[key] || [];
@@ -82,12 +92,16 @@ class Canable {
 	disallow(subjects, entities, actions) {
 		joi.assert(subjects, schemas.Subjects);
 		joi.assert(entities, schemas.Entities);
-		joi.assert(actions, schemas.Actions);
+		if (_.isNil(actions) || actions === '*' || actions === 'all') {
+			actions = '*';
+		} else {
+			joi.assert(actions, schemas.Actions);
+			actions = _.uniq(arrify(actions));
+		}
 
-		const isArray = Array.isArray(entities);
+		const multiple = Array.isArray(entities);
 		subjects = _.uniq(arrify(subjects));
 		entities = _.uniq(arrify(entities));
-		actions = _.uniq(arrify(actions));
 
 		if (_.isEmpty(subjects) ||
 			_.isEmpty(entities) ||
@@ -96,7 +110,7 @@ class Canable {
 		}
 
 		const {CanEntity} = this.models;
-		const {dirty, property} = this;
+		const {dirty, property} = this.opts;
 
 		return PromiseA.map(entities, entity => {
 			if (!entity) return;
@@ -117,7 +131,7 @@ class Canable {
 				});
 			}
 			return disallow(entity, property);
-		}).then(items => isArray ? items : items[0]);
+		}).then(items => multiple ? items : items[0]);
 
 		function disallow(target, key) {
 			if (!target[key]) return;
@@ -127,7 +141,7 @@ class Canable {
 				const permission = _.find(permissions, p => p.subject === subject);
 				if (!permission) return;
 				if (!_.isEmpty(permission.actions)) {
-					permission.actions = _.without(permission.actions, ...actions);
+					permission.actions = actions === '*' ? null : _.without(permission.actions, ...actions);
 				}
 				if (_.isEmpty(permission.actions)) {
 					_.remove(permissions, p => p.subject === subject);
@@ -138,6 +152,37 @@ class Canable {
 			});
 			return saveEntity(target);
 		}
+	}
+
+	remove(entities) {
+		const multiple = Array.isArray(entities);
+		joi.assert(entities, schemas.Entities);
+
+		entities = _.uniq(arrify(entities));
+		const {CanEntity} = this.models;
+		const {dirty, property} = this.opts;
+
+		return PromiseA.map(entities, entity => {
+			if (!entity) return;
+			if (!dirty || _.isString(entity)) {
+				let entityType = entity;
+				let entityId = '';
+				if (!_.isString(entity)) {
+					if (!(_.isObject(entity) && entity.id && entity.constructor.modelName)) {
+						throw new Error(util.format('Invalid entity: %j', entity));
+					}
+					entityType = entity.constructor.modelName;
+					entityId = entity.id;
+				}
+
+				const data = {entityType, entityId};
+				return CanEntity.destroyAll(data);
+			}
+
+			// dirty mode
+			entity[property] = null;
+			return saveEntity(entity);
+		}).then(items => multiple ? items : items[0]);
 	}
 
 	can(subjects, entity, actions) {
@@ -160,7 +205,7 @@ class Canable {
 		}
 
 		const {CanEntity} = this.models;
-		const {dirty, property} = this;
+		const {dirty, property} = this.opts;
 
 		if (!dirty || _.isString(entity)) {
 			let entityType = entity;
@@ -209,6 +254,12 @@ class Canable {
 		return this.can(...arguments).then(allowed => !allowed);
 	}
 
+	/**
+	 * Secure a model class for find
+	 *
+	 * @param {Function} Model model class to secure
+	 * @param {Object} [opts] options for secure. Default is provided in constructor.
+	 */
 	secure(Model, opts) {
 		opts = _.defaults(opts || {}, this.opts);
 		return secure(Model, opts);

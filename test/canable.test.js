@@ -29,25 +29,24 @@ function itCanable(dirty) {
 
 	afterEach(() => s.teardown());
 
-	function getPermissions(target) {
-		return target._permissions || target.permissions;
-	}
-
 	it('should allow single action', () => {
 		return canable.allow('tom', product, 'read').then(p => {
-			assert.sameDeepMembers(getPermissions(p || product), [{subject: 'tom', actions: ['read']}]);
+			const permissions = dirty ? product._permissions : p.permissions;
+			assert.sameDeepMembers(permissions, [{subject: 'tom', actions: ['read']}]);
 		});
 	});
 
 	it('should allow multiple actions', () => {
 		return canable.allow('tom', product, ['read', 'destroy']).then(p => {
-			assert.sameDeepMembers(getPermissions(p || product), [{subject: 'tom', actions: ['read', 'destroy']}]);
+			const permissions = dirty ? product._permissions : p.permissions;
+			assert.sameDeepMembers(permissions, [{subject: 'tom', actions: ['read', 'destroy']}]);
 		});
 	});
 
 	it('should allow multiple subjects', () => {
 		return canable.allow(['a', 'b'], product, ['read', 'destroy']).then(p => {
-			assert.sameDeepMembers(getPermissions(p || product), [
+			const permissions = dirty ? product._permissions : p.permissions;
+			assert.sameDeepMembers(permissions, [
 				{subject: 'a', actions: ['read', 'destroy']},
 				{subject: 'b', actions: ['read', 'destroy']}
 			]);
@@ -57,7 +56,8 @@ function itCanable(dirty) {
 	it('should disallow action', () => {
 		return canable.allow(['a', 'b'], product, ['read', 'destroy']).then(() => {
 			return canable.disallow(['a', 'b'], product, ['destroy']).then(p => {
-				assert.sameDeepMembers(getPermissions(p || product), [{subject: 'a', actions: ['read']}, {
+				const permissions = dirty ? product._permissions : p.permissions;
+				assert.sameDeepMembers(permissions, [{subject: 'a', actions: ['read']}, {
 					subject: 'b',
 					actions: ['read']
 				}]);
@@ -101,19 +101,19 @@ function itCanable(dirty) {
 
 	it('should `can` not for single un-permitted action', () => {
 		return canable.allow(['a', 'b'], product, ['read', 'destroy']).then(() => {
-			assert.eventually.isFalse(canable.can('a', product, ['manage']));
+			assert.eventually.isTrue(canable.cannot('a', product, ['manage']));
 		});
 	});
 
 	it('should `can` not for multiple un-permitted action', () => {
 		return canable.allow(['a', 'b'], product, ['read', 'destroy']).then(() => {
-			assert.eventually.isFalse(canable.can('a', product, ['read', 'manage']));
+			assert.eventually.isTrue(canable.cannot('a', product, ['read', 'manage']));
 		});
 	});
 
 	it('should `can` not for single un-permitted subject', () => {
 		return canable.allow(['a', 'b'], product, ['read', 'destroy']).then(() => {
-			assert.eventually.isFalse(canable.can('c', product, ['read']));
+			assert.eventually.isTrue(canable.cannot('c', product, ['read']));
 		});
 	});
 
@@ -121,6 +121,20 @@ function itCanable(dirty) {
 		return canable.allow('tom', 'Product', 'read').then(() => {
 			return canable.models.CanEntity.findOne({entityType: 'Product'}).then(inst => {
 				assert.sameDeepMembers(inst.permissions, [{subject: 'tom', actions: ['read']}]);
+			});
+		});
+	});
+
+	it('should remove permissions for entity', () => {
+		return canable.allow('tom', product, 'read').then(p => {
+			const permissions = dirty ? product._permissions : p.permissions;
+			assert.sameDeepMembers(permissions, [{subject: 'tom', actions: ['read']}]);
+			return canable.remove(product).then(result => {
+				if (dirty) {
+					assert.isNull(result._permissions);
+				} else {
+					assert.deepEqual(result, {count: 1});
+				}
 			});
 		});
 	});

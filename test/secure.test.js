@@ -14,7 +14,7 @@ describe('secure', () => {
 	afterEach(() => s.teardown());
 
 	it('should secure model find', () => {
-		const canable = new Canable({ds: s.ds, getSubjects: () => 'tom'});
+		const canable = new Canable({ds: s.ds, getCurrentSubjects: () => 'tom'});
 		canable.secure(Store);
 		return Store.find({where: {name: {inq: ['A', 'B', 'C']}}}).then(([storeA, storeB, storeC]) => {
 			return PromiseA.resolve()

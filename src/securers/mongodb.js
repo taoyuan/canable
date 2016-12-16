@@ -1,26 +1,31 @@
 'use strict';
 
+const assert = require('assert');
 const _ = require('lodash');
 const arrify = require('arrify');
 const util = require('util');
 const utils = require('../utils');
 
-const COMMAND = ['find', 'findOne'];
+// TODO Should we deal with commands: update, remove ?
+const COMMAND = ['find', 'findOne', 'findAndModify', 'count'];
 
 module.exports = function (Model, opts) {
 	const modelName = Model.modelName;
-	const {property, getSubjects} = opts;
+	const {dirty, property, getCurrentSubjects} = opts;
 
-	if (property) {
-		if (Model.definition.properties[property]) {
-			throw new Error(util.format('Property "%" has been exist in Model "%s", specify another property for permissions',
-				property, modelName));
-		}
-		// Define permissions property
-		Model.defineProperty(property, {type: [Object]});
-		// Hide permissions property
-		utils.hideProperty(Model, property);
+	assert(dirty, 'MongoDB securer only support dirty mode');
+	assert(property, '"property" is required with dirty mode');
+
+	if (Model.definition.properties[property]) {
+		throw new Error(util.format('Property "%" has been exist in Model "%s", specify another property for permissions',
+			property, modelName));
 	}
+
+	// Define permissions property
+	Model.defineProperty(property, {type: [Object]});
+
+	// Hide permissions property
+	utils.hideProperty(Model, property);
 
 	return function (ctx) {
 		// ctx:
@@ -37,7 +42,7 @@ module.exports = function (Model, opts) {
 			return;
 		}
 
-		const subjects = arrify(getSubjects());
+		const subjects = arrify(getCurrentSubjects());
 		if (_.isEmpty(subjects)) {
 			return;
 		}
