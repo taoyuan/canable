@@ -20,7 +20,13 @@
     "index.js"
   ],
   "keywords": [
-    ""
+    "canable",
+    "loopback",
+    "permission",
+    "action",
+    "acl",
+    "can",
+    "cancan"
   ],
   "dependencies": {
     "arrify": "^1.0.1",
