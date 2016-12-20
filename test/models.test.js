@@ -2,12 +2,17 @@
 
 /* global describe,it */
 const assert = require('chai').assert;
-const loadModels = require('../src/models');
+const modeler = require('../src/modeler');
+
+const s = require('./support');
 
 describe('models', () => {
+	beforeEach(() => s.setup());
+	afterEach(() => s.teardown());
+
 	it('should load models', () => {
-		const models = loadModels();
-		assert.ok(models.CanEntity);
-		return models.CanEntity.create().then(p => assert.ok(p));
+		const models = modeler.load();
+		assert.ok(models.SecEntity);
+		return models.SecEntity.create().then(p => assert.ok(p));
 	});
 });

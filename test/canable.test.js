@@ -119,7 +119,7 @@ function itCanable(dirty) {
 
 	it('should work for string entity', () => {
 		return canable.allow('tom', 'Product', 'read').then(() => {
-			return canable.models.CanEntity.findOne({entityType: 'Product'}).then(inst => {
+			return canable.models.SecEntity.findOne({entityType: 'Product'}).then(inst => {
 				assert.sameDeepMembers(inst.permissions, [{subject: 'tom', actions: ['read']}]);
 			});
 		});

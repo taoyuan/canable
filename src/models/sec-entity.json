@@ -1,5 +1,5 @@
 {
-  "name": "CanEntity",
+  "name": "SecEntity",
   "properties": {
 	"entityType": "string",
 	"entityId": "string",

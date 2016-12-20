@@ -2,9 +2,10 @@ const _ = require('lodash');
 const PromiseA = require('bluebird');
 const arrify = require('arrify');
 const joi = require('joi');
+const util = require('util');
 const schemas = require('./schemas');
 const secure = require('./secure');
-const util = require('util');
+const modeler = require('./modeler');
 
 const DEFAULT_PERMISSIONS_PROPERTY = '_permissions';
 
@@ -28,7 +29,7 @@ class Canable {
 		opts.property = opts.property || DEFAULT_PERMISSIONS_PROPERTY;
 
 		this.findCorrelatedSubjectsFn = opts.findCorrelatedSubjects || _.noop;
-		this.models = require('./models')(opts);
+		this.models = modeler.load(opts);
 	}
 
 	findCorrelatedSubjects(subject) {
@@ -51,7 +52,7 @@ class Canable {
 			return PromiseA.resolve();
 		}
 
-		const {CanEntity} = this.models;
+		const {SecEntity} = this.models;
 		const {dirty, property} = this.opts;
 
 		return PromiseA.map(entities, entity => {
@@ -68,7 +69,7 @@ class Canable {
 				}
 
 				const data = {entityType, entityId};
-				return CanEntity.findOrCreate({where: data}, data).then(([inst]) => allow(inst, 'permissions'));
+				return SecEntity.findOrCreate({where: data}, data).then(([inst]) => allow(inst, 'permissions'));
 			}
 			return allow(entity, property);
 		}).then(items => multiple ? items : items[0]);
@@ -109,7 +110,7 @@ class Canable {
 			return PromiseA.resolve();
 		}
 
-		const {CanEntity} = this.models;
+		const {SecEntity} = this.models;
 		const {dirty, property} = this.opts;
 
 		return PromiseA.map(entities, entity => {
@@ -126,7 +127,7 @@ class Canable {
 				}
 
 				const data = {entityType, entityId};
-				return CanEntity.findOne({where: data}).then(inst => {
+				return SecEntity.findOne({where: data}).then(inst => {
 					if (inst) return disallow(inst, 'permissions');
 				});
 			}
@@ -159,7 +160,7 @@ class Canable {
 		joi.assert(entities, schemas.Entities);
 
 		entities = _.uniq(arrify(entities));
-		const {CanEntity} = this.models;
+		const {SecEntity} = this.models;
 		const {dirty, property} = this.opts;
 
 		return PromiseA.map(entities, entity => {
@@ -176,7 +177,7 @@ class Canable {
 				}
 
 				const data = {entityType, entityId};
-				return CanEntity.destroyAll(data);
+				return SecEntity.destroyAll(data);
 			}
 
 			// dirty mode
@@ -204,7 +205,7 @@ class Canable {
 			return PromiseA.resolve(true);
 		}
 
-		const {CanEntity} = this.models;
+		const {SecEntity} = this.models;
 		const {dirty, property} = this.opts;
 
 		if (!dirty || _.isString(entity)) {
@@ -219,7 +220,7 @@ class Canable {
 			}
 
 			const data = {entityType, entityId};
-			return CanEntity.findOne({where: data}).then(inst => {
+			return SecEntity.findOne({where: data}).then(inst => {
 				if (!inst) return true;
 				return can(inst, 'permissions');
 			});
