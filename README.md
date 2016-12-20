@@ -1,4 +1,9 @@
-# canable [![Build Status](https://travis-ci.org/taoyuan/canable.svg?branch=master)](https://travis-ci.org/taoyuan/canable) [![Coverage Status](https://coveralls.io/repos/github/taoyuan/canable/badge.svg?branch=master)](https://coveralls.io/github/taoyuan/canable?branch=master)
+# nsec-canable
+
+[![NPM version](http://img.shields.io/npm/v/nsec-canable.svg?style=flat-square)](https://www.npmjs.com/package/nsec-canable)
+[![NPM downloads](http://img.shields.io/npm/dm/nsec-canable.svg?style=flat-square)](https://www.npmjs.com/package/nsec-canable)
+[![Build Status](http://img.shields.io/travis/taoyuan/nsec-canable/master.svg?style=flat-square)](https://travis-ci.org/taoyuan/nsec-canable)
+[![Coverage Status](https://img.shields.io/coveralls/taoyuan/nsec-canable.svg?style=flat-square)](https://coveralls.io/taoyuan/nsec-canable)
 
 > An access control library for node.js
 
