@@ -23,7 +23,7 @@ function itCanable(dirty) {
 	beforeEach(() => s.setup());
 
 	beforeEach(() => {
-		canable = new Canable({ds: s.ds, dirty});
+		canable = new Canable(s.ds, {dirty});
 		return s.Product.create().then(p => product = p);
 	});
 

@@ -14,22 +14,36 @@ class Canable {
 	/**
 	 * Constructor for Canable
 	 *
-	 * @param {Object} opts
+	 * @param {String|Object} [ds]
+	 * @param {Object} [opts]
 	 * @param {Boolean} [opts.dirty] is dirty mode. Default is true.
 	 * @param {String} [opts.property] property name for dirty mode. Default is "_permission".
 	 * @param {Function} [opts.findCorrelatedSubjects] find correlated roles for the subject (user or role).
 	 * @param {Function} [opts.getCurrentSubjects] get current user and roles correlated.
+	 * @param {Object|String} [opts.dataSource]
+	 * @param {Object|String} [opts.datasource]
+	 * @param {Object|String} [opts.ds]
 	 *
 	 */
-	constructor(opts) {
+	constructor(ds, opts) {
+		if (!_.isString(ds) && !_.isFunction(_.get(ds, 'createModel'))) {
+			opts = ds;
+			ds = undefined;
+		}
+
 		this.opts = _.defaults(opts, {
+			ds,
 			property: DEFAULT_PERMISSIONS_PROPERTY
 		});
 		opts.dirty = opts.dirty !== false;
 		opts.property = opts.property || DEFAULT_PERMISSIONS_PROPERTY;
 
 		this.findCorrelatedSubjectsFn = opts.findCorrelatedSubjects || _.noop;
-		this.models = modeler.load(opts);
+		this._models = modeler.load(opts);
+	}
+
+	get models() {
+		return this._models;
 	}
 
 	findCorrelatedSubjects(subject) {
@@ -52,7 +66,7 @@ class Canable {
 			return PromiseA.resolve();
 		}
 
-		const {SecEntity} = this.models;
+		const {SecEntity} = this._models;
 		const {dirty, property} = this.opts;
 
 		return PromiseA.map(entities, entity => {
@@ -110,7 +124,7 @@ class Canable {
 			return PromiseA.resolve();
 		}
 
-		const {SecEntity} = this.models;
+		const {SecEntity} = this._models;
 		const {dirty, property} = this.opts;
 
 		return PromiseA.map(entities, entity => {
@@ -160,7 +174,7 @@ class Canable {
 		joi.assert(entities, schemas.Entities);
 
 		entities = _.uniq(arrify(entities));
-		const {SecEntity} = this.models;
+		const {SecEntity} = this._models;
 		const {dirty, property} = this.opts;
 
 		return PromiseA.map(entities, entity => {
@@ -205,7 +219,7 @@ class Canable {
 			return PromiseA.resolve(true);
 		}
 
-		const {SecEntity} = this.models;
+		const {SecEntity} = this._models;
 		const {dirty, property} = this.opts;
 
 		if (!dirty || _.isString(entity)) {

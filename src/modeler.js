@@ -16,15 +16,15 @@ exports.load = function (options) {
 		defaultModelSettings: {}
 	}, options);
 
-	let dataSource = options.dataSource || options.datasource || options.ds;
-	if (dataSource === 'string') {
-		dataSource = {connector: dataSource};
+	let ds = options.dataSource || options.datasource || options.ds;
+	if (ds === 'string') {
+		ds = {connector: ds};
 	}
-	if (!dataSource) {
-		dataSource = {connector: 'memory'};
+	if (!ds) {
+		ds = {connector: 'memory'};
 	}
-	if (!_.isObject(dataSource) || !_.isFunction(dataSource.createModel)) {
-		dataSource = new DataSource(dataSource);
+	if (!_.isObject(ds) || !_.isFunction(ds.createModel)) {
+		ds = new DataSource(ds);
 	}
 
 	const definitions = needs(options.modelsDir, {includes: '*.json'});
@@ -33,7 +33,7 @@ exports.load = function (options) {
 	const models = {};
 
 	_.forEach(definitions, def => {
-		models[def.name] = dataSource.createModel(def.name, def.properties,
+		models[def.name] = ds.createModel(def.name, def.properties,
 			_.defaults(_.omit(def, ['name', 'properties']), options.defaultModelSettings)
 		);
 	});
