@@ -1,6 +1,6 @@
 {
   "name": "nsec-canable",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An access control library for node.js",
   "license": "MIT",
   "repository": "taoyuan/canable",
