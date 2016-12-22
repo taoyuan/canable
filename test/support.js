@@ -9,6 +9,7 @@ const pkg = require('../package.json');
 
 const DataSource = require('loopback-datasource-juggler').DataSource;
 const ds = exports.ds = new DataSource('mongodb', {database: '__test__' + pkg.name});
+require('./mocks/models/user')(ds);
 require('./mocks/models/store')(ds);
 require('./mocks/models/product')(ds);
 
@@ -33,4 +34,7 @@ exports.teardown = function () {
 	return cleanup(ds);
 };
 
+exports.models = ds.models;
+
+exports.User = ds.models.User;
 exports.Product = ds.models.Product;

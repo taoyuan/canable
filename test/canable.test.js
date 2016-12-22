@@ -1,6 +1,6 @@
 'use strict';
 
-/* global describe,it,beforeEach,afterEach */
+const PromiseA = require('bluebird');
 const assert = require('chai').assert;
 const Canable = require('..');
 
@@ -19,8 +19,18 @@ describe('canable', () => {
 function itCanable(dirty) {
 	let canable;
 	let product;
+	let tom, jerry;
 
-	beforeEach(() => s.setup());
+	beforeEach(() => {
+		return s.setup().then(() => PromiseA.fromCallback(cb => s.User.create([{
+			name: 'Tom'
+		}, {
+			name: 'Jerry'
+		}], cb))).then(([t, j]) => {
+			tom = t;
+			jerry = j;
+		});
+	});
 
 	beforeEach(() => {
 		canable = new Canable(s.ds, {dirty});
@@ -30,9 +40,9 @@ function itCanable(dirty) {
 	afterEach(() => s.teardown());
 
 	it('should allow single action', () => {
-		return canable.allow('tom', product, 'read').then(p => {
+		return canable.allow(tom, product, 'read').then(p => {
 			const permissions = dirty ? product._permissions : p.permissions;
-			assert.sameDeepMembers(permissions, [{subject: 'tom', actions: ['read']}]);
+			assert.sameDeepMembers(permissions, [{subject: 'User:' + tom.id, actions: ['read']}]);
 		});
 	});
 

@@ -6,6 +6,7 @@ const util = require('util');
 const schemas = require('./schemas');
 const secure = require('./secure');
 const modeler = require('./modeler');
+const utils = require('./utils');
 
 const DEFAULT_PERMISSIONS_PROPERTY = '_permissions';
 
@@ -56,7 +57,7 @@ class Canable {
 		joi.assert(actions, schemas.Actions);
 
 		const multiple = Array.isArray(entities);
-		subjects = _.uniq(arrify(subjects));
+		subjects = _.uniq(arrify(subjects)).map(utils.identify).filter(_.identity);
 		entities = _.uniq(arrify(entities));
 		actions = _.uniq(arrify(actions));
 
@@ -115,7 +116,7 @@ class Canable {
 		}
 
 		const multiple = Array.isArray(entities);
-		subjects = _.uniq(arrify(subjects));
+		subjects = _.uniq(arrify(subjects)).map(utils.identify).filter(_.identity);
 		entities = _.uniq(arrify(entities));
 
 		if (_.isEmpty(subjects) ||
@@ -130,16 +131,7 @@ class Canable {
 		return PromiseA.map(entities, entity => {
 			if (!entity) return;
 			if (!dirty || _.isString(entity)) {
-				let entityType = entity;
-				let entityId = '';
-				if (!_.isString(entity)) {
-					if (!(_.isObject(entity) && entity.id && entity.constructor.modelName)) {
-						throw new Error(util.format('Invalid entity: %j', entity));
-					}
-					entityType = entity.constructor.modelName;
-					entityId = entity.id;
-				}
-
+				const {type: entityType, id: entityId} = utils.typeid(entity);
 				const data = {entityType, entityId};
 				return SecEntity.findOne({where: data}).then(inst => {
 					if (inst) return disallow(inst, 'permissions');
@@ -180,16 +172,7 @@ class Canable {
 		return PromiseA.map(entities, entity => {
 			if (!entity) return;
 			if (!dirty || _.isString(entity)) {
-				let entityType = entity;
-				let entityId = '';
-				if (!_.isString(entity)) {
-					if (!(_.isObject(entity) && entity.id && entity.constructor.modelName)) {
-						throw new Error(util.format('Invalid entity: %j', entity));
-					}
-					entityType = entity.constructor.modelName;
-					entityId = entity.id;
-				}
-
+				const {type: entityType, id: entityId} = utils.typeid(entity);
 				const data = {entityType, entityId};
 				return SecEntity.destroyAll(data);
 			}
@@ -209,7 +192,7 @@ class Canable {
 	}
 
 	_can(subjects, entity, actions) {
-		subjects = _.uniq(arrify(subjects));
+		subjects = _.uniq(arrify(subjects)).map(utils.identify).filter(_.identity);
 		actions = _.uniq(arrify(actions));
 
 		if (_.isEmpty(subjects)) {
@@ -223,18 +206,9 @@ class Canable {
 		const {dirty, property} = this.opts;
 
 		if (!dirty || _.isString(entity)) {
-			let entityType = entity;
-			let entityId = '';
-			if (!_.isString(entity)) {
-				if (!(_.isObject(entity) && entity.id && entity.constructor.modelName)) {
-					throw new Error(util.format('Invalid entity: %j', entity));
-				}
-				entityType = entity.constructor.modelName;
-				entityId = entity.id;
-			}
-
+			const {type: entityType, id: entityId} = utils.typeid(entity);
 			const data = {entityType, entityId};
-			return SecEntity.findOne({where: data}).then(inst => {
+			return PromiseA.resolve(SecEntity.findOne({where: data})).then(inst => {
 				if (!inst) return true;
 				return can(inst, 'permissions');
 			});
