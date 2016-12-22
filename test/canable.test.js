@@ -19,7 +19,8 @@ describe('canable', () => {
 function itCanable(dirty) {
 	let canable;
 	let product;
-	let tom, jerry;
+	let tom;
+	let jerry;
 
 	beforeEach(() => {
 		return s.setup().then(() => PromiseA.fromCallback(cb => s.User.create([{

@@ -57,7 +57,7 @@ class Canable {
 		joi.assert(actions, schemas.Actions);
 
 		const multiple = Array.isArray(entities);
-		subjects = _.uniq(arrify(subjects)).map(utils.identify).filter(_.identity);
+		subjects = _.uniq(arrify(subjects)).map(item => utils.identify(item)).filter(_.identity);
 		entities = _.uniq(arrify(entities));
 		actions = _.uniq(arrify(actions));
 
@@ -116,7 +116,7 @@ class Canable {
 		}
 
 		const multiple = Array.isArray(entities);
-		subjects = _.uniq(arrify(subjects)).map(utils.identify).filter(_.identity);
+		subjects = _.uniq(arrify(subjects)).map(item => utils.identify(item)).filter(_.identity);
 		entities = _.uniq(arrify(entities));
 
 		if (_.isEmpty(subjects) ||
@@ -192,7 +192,7 @@ class Canable {
 	}
 
 	_can(subjects, entity, actions) {
-		subjects = _.uniq(arrify(subjects)).map(utils.identify).filter(_.identity);
+		subjects = _.uniq(arrify(subjects)).map(item => utils.identify(item)).filter(_.identity);
 		actions = _.uniq(arrify(actions));
 
 		if (_.isEmpty(subjects)) {
