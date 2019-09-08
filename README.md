@@ -3,7 +3,7 @@
 [![NPM version](http://img.shields.io/npm/v/nsec-canable.svg?style=flat-square)](https://www.npmjs.com/package/nsec-canable)
 [![NPM downloads](http://img.shields.io/npm/dm/nsec-canable.svg?style=flat-square)](https://www.npmjs.com/package/nsec-canable)
 [![Build Status](http://img.shields.io/travis/taoyuan/nsec-canable/master.svg?style=flat-square)](https://travis-ci.org/taoyuan/nsec-canable)
-[![Coverage Status](https://img.shields.io/coveralls/taoyuan/nsec-canable.svg?style=flat-square)](https://coveralls.io/taoyuan/nsec-canable)
+[![Coverage Status](https://img.shields.io/coveralls/taoyuan/nsec-canable.svg?style=flat-square)](https://coveralls.io/taoyuan/nsec-canable) [![Greenkeeper badge](https://badges.greenkeeper.io/taoyuan/nsec-canable.svg)](https://greenkeeper.io/)
 
 > An access control library for node.js
 
